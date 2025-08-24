@@ -60,13 +60,13 @@ PostgreSQL >= 14.x
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/rbac-dashboard.git
-cd rbac-dashboard
+git clone https://github.com/rishi-kumar-verma/role-based-access-next-js.git
+cd role-based-access-next-js
 ```
 
 2. Install dependencies
 ```bash
-yarn 
+npx 
 ```
 
 3. Set up environment variables
@@ -77,8 +77,8 @@ cp .env.example .env
 Configure the following variables in `.env`:
 ```env
 # Database
-DATABASE_URL="postgresql://user:password@localhost:5432/rbac_db"
-DIRECT_URL="transaction_pool_connection_url"
+DATABASE_URL="postgresql://postgres:root@localhost:5432/ass"
+DIRECT_URL="postgresql://postgres:root@localhost:5432/ass"
 
 # NextAuth
 NEXTAUTH_URL="http://localhost:3000"
@@ -92,15 +92,20 @@ AUTH_GOOGLE_SECRET="your-google-client-secret"
 4. Set up the database
 ```bash
 # Generate Prisma Client
-yarn prisma generate
+npx prisma generate
 
 # Run migrations
-yarn prisma migrate dev
+npx prisma migrate dev
+
+# Run seed
+npx tsc prisma/seed.ts --outDir prisma/dist
+
+node --loader ts-node/esm prisma/seed.ts
 ```
 
 5. Start the development server
 ```bash
-yarn dev
+npx dev
 ```
 
 The application will be available at `http://localhost:3000`
@@ -109,10 +114,10 @@ The application will be available at `http://localhost:3000`
 
 ```bash
 # Build the application
-yarn build
+npx build
 
 # Start production server
-yarn start
+npx start
 ```
 
 ## 🔒 Permission Structure
