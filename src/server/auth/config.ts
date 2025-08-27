@@ -2,10 +2,12 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
+import GitHubProvider from "next-auth/providers/github";
 import bcrypt from "bcrypt";
 
 import { db } from "@/server/db";
 import { env } from "@/env";
+// import sendLoginNotification from "../send/route";
 
 /**
  * Module augmentation for `next-auth` types. Allows extending session and user.
@@ -35,7 +37,10 @@ export const authConfig = {
       clientId: env.AUTH_GOOGLE_ID,
       clientSecret: env.AUTH_GOOGLE_SECRET,
     }),
-
+    GitHubProvider({
+      clientId: env.AUTH_GITHUB_ID,
+      clientSecret: env.AUTH_GITHUB_SECRET,
+    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -80,7 +85,9 @@ export const authConfig = {
   ],
 
   adapter: PrismaAdapter(db),
-
+  session: {
+    strategy: "database",
+  },
   pages: {
     error: "/error",
     signIn: "/",
@@ -94,6 +101,9 @@ export const authConfig = {
     },
 
     session: async ({ session, user }) => {
+      console.log("SESSION", session);
+      console.log("user", user);
+
       return {
         ...session,
         user: {
@@ -106,10 +116,12 @@ export const authConfig = {
     },
 
     jwt: async ({ token, user }) => {
-      if (user) {
-        token.isActive = user.isActive;
-      }
-      return token;
-    },
+    if (user) {
+      token.isActive = user.isActive;
+    }
+      console.log("TOKEN", token);
+
+    return token;
+  },
   },
 } satisfies NextAuthConfig;

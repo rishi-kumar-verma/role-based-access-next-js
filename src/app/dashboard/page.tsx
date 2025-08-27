@@ -49,8 +49,9 @@ const columns: ColumnDef<User>[] = [
 ];
 
 export default function UserDashboardPage() {
+  debugger;
   const { data, isLoading } = api.user.fetchAll.useQuery();
-
+  debugger;
   const { hasPermission, isLoading: isValidatingPermission } = usePermission(
     "USER",
     "READ",

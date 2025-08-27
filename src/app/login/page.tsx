@@ -1,26 +1,58 @@
-"use client"
+"use client";
 
-import type React from "react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import Link from "next/link";
 
-import Link from "next/link"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Briefcase, Github, ChromeIcon as Google } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Briefcase, Github, ChromeIcon as Google } from "lucide-react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [rememberMe, setRememberMe] = useState(false)
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // In a real app, you would handle authentication here
-    console.log({ email, password, rememberMe })
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setFormError(null);
+
+    const res = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+      callbackUrl: "/dashboard",
+      // rememberMe,
+      // optionally pass your rememberMe here if you handle session lifetime server side
+    });
+
+    setLoading(false);
+    console.log('res=>', res);
+    debugger;
+    if (res?.error) {
+      setFormError("Invalid email or password.");
+    } else if (res?.ok) {
+      router.push(res.url ?? "/dashboard");
+    }
   }
+
+  const handleGoogleSignIn = () => signIn("google", { callbackUrl: "/dashboard" });
+  const handleGitHubSignIn = () => signIn("github", { callbackUrl: "/dashboard" });
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4 py-12">
@@ -37,7 +69,7 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -47,6 +79,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
               />
             </div>
             <div className="space-y-2">
@@ -62,20 +95,26 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
               />
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="remember"
                 checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                onCheckedChange={(checked) => setRememberMe(!!checked)}
               />
               <Label htmlFor="remember" className="text-sm font-normal">
                 Remember me
               </Label>
             </div>
-            <Button type="submit" className="w-full">
-              Sign In
+            {formError && (
+              <div role="alert" className="text-sm text-red-600">
+                {formError}
+              </div>
+            )}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
           <div className="relative my-6">
@@ -87,11 +126,11 @@ export default function LoginPage() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2" type="button" onClick={handleGoogleSignIn}>
               <Google className="h-4 w-4" />
               Google
             </Button>
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2" type="button" onClick={handleGitHubSignIn}>
               <Github className="h-4 w-4" />
               GitHub
             </Button>
@@ -107,6 +146,5 @@ export default function LoginPage() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
-

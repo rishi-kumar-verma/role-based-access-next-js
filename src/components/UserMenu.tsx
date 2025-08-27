@@ -24,10 +24,10 @@ export default function UserMenu({
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="flex h-10 w-10 items-center justify-center bg-gray-700 p-1">
-            <AvatarImage
+            {/* <AvatarImage
               src={`${userImage}${session?.user.name?.replace(" ", "%20")}`}
               alt={session?.user.name ?? ""}
-            />
+            /> */}
             <AvatarFallback>
               {session?.user.name
                 ?.split(" ")
