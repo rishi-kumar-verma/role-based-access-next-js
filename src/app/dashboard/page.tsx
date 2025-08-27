@@ -1,14 +1,13 @@
 "use client";
 
 import AccessDenied from "@/components/access-denined";
-import { Button } from "@/components/ui/button";
 import { GlobalTable } from "@/components/ui/global-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { UserTableActionsDropdown } from "@/components/user-table-actions";
 import { usePermission } from "@/hooks/user-permission";
 import { api } from "@/trpc/react";
-import { SOURCES, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import React from "react";
 
@@ -70,7 +69,7 @@ export default function UserDashboardPage() {
   }
 
   return (
-    <section className="flex flex-col gap-4 p-4">
+    <section className="flex flex-col gap-4 p-4" suppressHydrationWarning={true}>
       <h2 className="text-2xl font-bold">Manage users</h2>
       <GlobalTable columns={columns} data={data ?? []} />
     </section>
