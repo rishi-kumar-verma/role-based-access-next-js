@@ -93,18 +93,30 @@ export const authConfig = {
   },
 
   callbacks: {
-    signIn({ user }) {
+    signIn: async ({ user }) => {
       if (user.isActive === false) return false; // block inactive users
+      const dbUser = await db.user.findUnique({ where: { email: user.email ?? undefined } });
+      if (!dbUser) {
+        // Optionally create entry with default roleId, etc.
+        const userRole = await db.roles.findUnique({ where: { name: "User" } });
+        await db.user.create({
+          data: {
+            email: user.email,
+            roleId: userRole?.id, // Set your logic here
+            // ...other props
+          }
+        });
+      }
       return true;
     },
 
-     jwt: async ({ token, user }) => {
-        if (user) {
-          token.isActive = user.isActive;
-          token.sub = user.id;
-        }
-        return token;
-      },
+    jwt: async ({ token, user }) => {
+      if (user) {
+        token.isActive = user.isActive;
+        token.sub = user.id;
+      }
+      return token;
+    },
 
     session: async ({ session, token, user }) => {
       return {

@@ -16,9 +16,7 @@ export const metadata: Metadata = {
 export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  debugger;
   const session = await auth();
-  console.log("Session:", session);
   if (!session) {
     redirect("/");
   }
