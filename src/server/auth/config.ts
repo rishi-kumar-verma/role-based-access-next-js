@@ -85,9 +85,7 @@ export const authConfig = {
   ],
 
   adapter: PrismaAdapter(db),
-  session: {
-    strategy: "database",
-  },
+  session: { strategy: "jwt" },
   pages: {
     error: "/error",
     signIn: "/",
@@ -100,28 +98,24 @@ export const authConfig = {
       return true;
     },
 
-    session: async ({ session, user }) => {
-      console.log("SESSION", session);
-      console.log("user", user);
+     jwt: async ({ token, user }) => {
+        if (user) {
+          token.isActive = user.isActive;
+          token.sub = user.id;
+        }
+        return token;
+      },
 
+    session: async ({ session, token, user }) => {
       return {
         ...session,
         user: {
           ...session.user,
-          id: user.id,
-          roleId: user.roleId,
-          isActive: user.isActive,
+          id: token.sub,
+          roleId: session.user.roleId,
+          isActive: session.user.isActive,
         },
       };
     },
-
-    jwt: async ({ token, user }) => {
-    if (user) {
-      token.isActive = user.isActive;
-    }
-      console.log("TOKEN", token);
-
-    return token;
-  },
   },
 } satisfies NextAuthConfig;
